@@ -1,4 +1,4 @@
 # IPMaskedTextBox
 An IP masked textbox for WPF .NET
 
-![ IP masked textbox screenshot](maskedbox.PNG)
+![IP masked textbox gif](maskbox.gif)
