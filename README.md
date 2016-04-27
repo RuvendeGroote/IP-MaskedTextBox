@@ -3,9 +3,9 @@ An IP masked textbox for WPF .NET
 
 ![IP masked textbox gif](maskbox.gif)
 
-Extract userinput through:
+Extract user input with:
 
--GetByteArray()
+GetByteArray()
 
--ipBox.[First|Second|Third|Fourth]Box.Text
+ipBox.[First | Second | Third | Fourth]Box.Text
 
