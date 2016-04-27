@@ -12,21 +12,17 @@ namespace IPmaskedtextbox
     /// </summary>
     public partial class IPMaskedTextBox : UserControl
     {
-        #region Class variables and properties
+        #region class variables and properties
 
-        #region Public variables and properties
-
+        #region public variables and properties
         public TextBox FirstBox { get { return firstBox; } }
         public TextBox SecondBox { get { return secondBox; } }
         public TextBox ThirdBox { get { return thirdBox; } }
         public TextBox FourthBox { get { return fourthBox; } }
-
         #endregion
 
-        #region Private variables and properties
-
+        #region private variables and properties
         private const string errorMessage = "Please specify a value between 0 and 255.";
-
         #endregion
 
         #endregion
@@ -47,7 +43,6 @@ namespace IPmaskedtextbox
             thirdBox.Text = Convert.ToString(bytesToFill[2]);
             fourthBox.Text = Convert.ToString(bytesToFill[3]);
         }
-
         #endregion
 
 
@@ -178,8 +173,8 @@ namespace IPmaskedtextbox
                 }
             }
         }
-        #endregion
-        
+        #endregion      
+
         #endregion
 
 
