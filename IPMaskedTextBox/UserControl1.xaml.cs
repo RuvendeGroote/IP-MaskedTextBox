@@ -2,8 +2,8 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Media;
+using System.Collections.Generic;
 
 namespace IPmaskedtextbox
 {
@@ -12,207 +12,231 @@ namespace IPmaskedtextbox
     /// </summary>
     public partial class IPMaskedTextBox : UserControl
     {
+        #region Class variables and properties
+
+        #region Public variables and properties
+
+        public TextBox FirstBox { get { return firstBox; } }
+        public TextBox SecondBox { get { return secondBox; } }
+        public TextBox ThirdBox { get { return thirdBox; } }
+        public TextBox FourthBox { get { return fourthBox; } }
+
+        #endregion
+
+        #region Private variables and properties
+
         private const string errorMessage = "Please specify a value between 0 and 255.";
 
+        #endregion
+
+        #endregion
+
+
+        #region constructors
         public IPMaskedTextBox()
         {
             InitializeComponent();
         }
 
-
         public IPMaskedTextBox(byte[] bytesToFill)
         {
             InitializeComponent();
-            firstByte.Text = Convert.ToString(bytesToFill[0]);
-            secondByte.Text = Convert.ToString(bytesToFill[1]);
-            thirdByte.Text = Convert.ToString(bytesToFill[2]);
-            fourthByte.Text = Convert.ToString(Convert.ToString(bytesToFill[3]));
+
+            firstBox.Text = Convert.ToString(bytesToFill[0]);
+            secondBox.Text = Convert.ToString(bytesToFill[1]);
+            thirdBox.Text = Convert.ToString(bytesToFill[2]);
+            fourthBox.Text = Convert.ToString(bytesToFill[3]);
         }
 
-        public string FirstByte { get { return firstByte.Text; } set { firstByte.Text = Convert.ToString(value);} }
+        #endregion
 
-        public string SecondByte { get { return secondByte.Text; } set { secondByte.Text = Convert.ToString(value); } }
 
-        public string ThirdByte { get { return thirdByte.Text; } set { thirdByte.Text = Convert.ToString(value); } }
-
-        public string FourthByte { get { return fourthByte.Text; } set { fourthByte.Text = Convert.ToString(value); } }
-
-        public bool FirstFocus { get { return firstByte.IsFocused; } }
-        public bool SecondFocus { get { return secondByte.IsKeyboardFocused; } }
-        public bool ThirdFocus { get { return thirdByte.IsKeyboardFocused; } }
-        public bool FourthFocus { get { return fourthByte.IsKeyboardFocused; } }
-
+        #region methods
+        
+        #region public methods
         public byte[] GetByteArray()
         {
             byte[] userInput = new byte[4];
 
-            userInput[0] = Convert.ToByte(firstByte.Text);
-            userInput[1] = Convert.ToByte(secondByte.Text);
-            userInput[2] = Convert.ToByte(thirdByte.Text);
-            userInput[3] = Convert.ToByte(fourthByte.Text);
+            userInput[0] = Convert.ToByte(firstBox.Text);
+            userInput[1] = Convert.ToByte(secondBox.Text);
+            userInput[2] = Convert.ToByte(thirdBox.Text);
+            userInput[3] = Convert.ToByte(fourthBox.Text);
 
             return userInput;
         }
+        #endregion
 
-        
-        //arrow, backspace and decimal keys actions. 
-        private void firstByte_PreviewKeyDown(object sender, KeyEventArgs e)
-        {      
-
-            if (((e.Key == Key.Right || e.Key == Key.OemPeriod || e.Key == Key.Decimal) 
-                && (firstByte.CaretIndex == firstByte.Text.Length || firstByte.Text == ""))
-                || e.Key == Key.Space)
-            {
-                secondByte.Focus();
-                secondByte.CaretIndex = 0;
-                e.Handled = true;
-            }                 
-        }
-
-        private void secondByte_PreviewKeyDown(object sender, KeyEventArgs e)
+        #region private methods
+        private void jumpRight(TextBox rightNeighborBox, KeyEventArgs e)
         {
-            if ((e.Key == Key.Left || e.Key == Key.Back) 
-                && (secondByte.CaretIndex == 0 || secondByte.Text == ""))
-                
-            {
-                firstByte.Focus();
-                if (firstByte.Text != "")
-                {
-                    firstByte.CaretIndex = firstByte.Text.Length;
-                }
+                rightNeighborBox.Focus();
+                rightNeighborBox.CaretIndex = 0;
                 e.Handled = true;
-            }
-            else if (((e.Key == Key.Right || e.Key == Key.OemPeriod || e.Key == Key.Decimal) 
-                && (secondByte.CaretIndex == secondByte.Text.Length || secondByte.Text == ""))
-                || e.Key == Key.Space)
-            {
-                thirdByte.Focus();
-                thirdByte.CaretIndex = 0;
-                e.Handled = true;    
-            }
         }
 
-        private void thirdByte_PreviewKeyDown(object sender, KeyEventArgs e)
+        private void jumpLeft(TextBox leftNeighborBox, KeyEventArgs e)
         {
-            if ((e.Key == Key.Left || e.Key == Key.Back) 
-                && (thirdByte.CaretIndex == 0 || thirdByte.Text == ""))
+            leftNeighborBox.Focus();
+            if (leftNeighborBox.Text != "")
             {
-                secondByte.Focus();
-                if (secondByte.Text != "")
-                {
-                    secondByte.CaretIndex = secondByte.Text.Length;
-                }
-                e.Handled = true;
+                leftNeighborBox.CaretIndex = leftNeighborBox.Text.Length;
             }
-
-            else if (((e.Key == Key.Right || e.Key == Key.OemPeriod || e.Key == Key.Decimal) 
-                && (thirdByte.CaretIndex == thirdByte.Text.Length || thirdByte.Text == ""))
-                || e.Key == Key.Space)
-            {
-                fourthByte.Focus();
-                fourthByte.CaretIndex = 0;
-                e.Handled = true;
-            }
+            e.Handled = true;
         }
 
-        private void fourthByte_PreviewKeyDown(object sender, KeyEventArgs e)
+        //checks for backspace, arrow and decimal key presses and jumps boxes if needed.
+        //returns true when key was matched, false if not.
+        private bool checkJumpRight(TextBox currentBox, TextBox rightNeighborBox, KeyEventArgs e)
         {
-            if ((e.Key == Key.Left || e.Key == Key.Back) && (fourthByte.CaretIndex == 0 || fourthByte.Text == ""))
+            switch (e.Key)
             {
-                thirdByte.Focus();
-                if (thirdByte.Text != "")
-                {
-                    thirdByte.CaretIndex = thirdByte.Text.Length;
-                }
-                e.Handled = true;
-            }
-            else if (e.Key == Key.Space)
-            {
-                e.Handled = true;
+                case Key.Right:
+                    if (currentBox.CaretIndex == currentBox.Text.Length || currentBox.Text == "")
+                    {
+                        jumpRight(rightNeighborBox, e);
+                    }
+                    return true;
+                case Key.OemPeriod:
+                case Key.Decimal:
+                case Key.Space:
+                    jumpRight(rightNeighborBox, e);
+                    rightNeighborBox.SelectAll();
+                    return true;
+                default:
+                    return false;
             }
         }
 
-        
-        //checks whether input is digit
-        private void firstByte_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        private bool checkJumpLeft(TextBox currentBox, TextBox leftNeighborBox, KeyEventArgs e)
         {
-            handlePreviewTextInput(e);
-
-            if (firstByte.SelectionLength > 0)
+            switch (e.Key)
             {
-                firstByte.Clear();
-            }
-
-            else if (firstByte.Text.Length == 3)
-            {
-                SystemSounds.Beep.Play();
-                secondByte.SelectAll();
-                secondByte.Focus();
-                e.Handled = true;
-            }
-        }
-
-        private void secondByte_PreviewTextInput(object sender, TextCompositionEventArgs e)
-        {
-            handlePreviewTextInput(e);
-
-            if (secondByte.SelectionLength > 0)
-            {
-                secondByte.Clear();
-            }
-
-            else if (secondByte.Text.Length == 3)
-            {
-                SystemSounds.Beep.Play();
-                thirdByte.SelectAll();
-                thirdByte.Focus();
-                e.Handled = true;
+                case Key.Left:
+                    if (currentBox.CaretIndex == 0 || currentBox.Text == "")
+                    {
+                        jumpLeft(leftNeighborBox, e);
+                    }
+                    return true;
+                case Key.Back:
+                    if ((currentBox.CaretIndex == 0 || currentBox.Text == "") && currentBox.SelectionLength == 0)
+                    {
+                        jumpLeft(leftNeighborBox, e);
+                    }
+                    return true;
+                default:
+                    return false;
             }
         }
 
-        private void thirdByte_PreviewTextInput(object sender, TextCompositionEventArgs e)
-        {
-            handlePreviewTextInput(e);
-
-            if (thirdByte.SelectionLength > 0)
-            {
-                thirdByte.Clear();
-            }
-
-            else if (thirdByte.Text.Length == 3)
-            {
-                SystemSounds.Beep.Play();
-                fourthByte.SelectAll();
-                fourthByte.Focus();
-                fourthByte.CaretIndex = 0;
-                e.Handled = true;
-            }
-        }
-
-        private void fourthByte_PreviewTextInput(object sender, TextCompositionEventArgs e)
-        {
-            handlePreviewTextInput(e);
-
-            if (fourthByte.SelectionLength > 0)
-            {
-                fourthByte.Clear();
-            }
-
-            else if (fourthByte.Text.Length == 3)
-            {
-                SystemSounds.Beep.Play();
-                e.Handled = true;
-            }
-        }
-
-        //logic for PreviewTextInput
-        private void handlePreviewTextInput(TextCompositionEventArgs e)
+        //discards non digits, prepares IPMaskedBox for textchange.
+        private void handleTextInput(TextBox currentBox, TextBox rightNeighborBox, TextCompositionEventArgs e)
         {
             if (!char.IsDigit(Convert.ToChar(e.Text)))
             {
                 e.Handled = true;
                 SystemSounds.Beep.Play();
+                return;
             }
+
+            if (currentBox.Text.Length == 3 && currentBox.SelectionLength == 0)
+            {
+                e.Handled = true;
+                SystemSounds.Beep.Play();
+                if (currentBox != fourthBox)
+                {
+                    rightNeighborBox.Focus();
+                    rightNeighborBox.SelectAll();
+                }
+            }
+        }
+
+        //checks whether textbox content > 255 when 3 characters have been entered.
+        //clears if > 255, switches to next textbox otherwise 
+        private void handleTextChange(TextBox currentBox, TextBox rightNeighborBox)
+        {
+            if (currentBox.Text.Length == 3)
+            {
+                try
+                {
+                    Convert.ToByte(currentBox.Text);
+
+                }
+                catch (Exception exception) when (exception is FormatException || exception is OverflowException)
+                {
+                    currentBox.Clear();
+                    currentBox.Focus();
+                    SystemSounds.Beep.Play();
+                    MessageBox.Show(errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                if (currentBox.CaretIndex != 2 && currentBox != fourthBox)
+                {
+                    rightNeighborBox.CaretIndex = rightNeighborBox.Text.Length;
+                    rightNeighborBox.SelectAll();
+                    rightNeighborBox.Focus();
+                }
+            }
+        }
+        #endregion
+        
+        #endregion
+
+
+        #region Events
+        //jump right, left or stay. 
+        private void firstByte_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            checkJumpRight(firstBox, secondBox, e);
+        }
+
+        private void secondByte_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (checkJumpRight(secondBox, thirdBox, e))
+                return;
+
+            checkJumpLeft(secondBox, firstBox, e);
+        }
+
+        private void thirdByte_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (checkJumpRight(thirdBox, fourthBox, e))
+                return;
+
+            checkJumpLeft(thirdBox, secondBox, e);
+        }
+
+        private void fourthByte_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            checkJumpLeft(fourthBox, thirdBox, e);
+
+            if (e.Key == Key.Space)
+            {
+                SystemSounds.Beep.Play();
+                e.Handled = true;
+            }
+        }
+
+
+        //discards non digits, prepares IPMaskedBox for textchange.
+        private void firstByte_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            handleTextInput(firstBox, secondBox, e);
+        }
+
+        private void secondByte_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            handleTextInput(secondBox, thirdBox, e);
+        }
+
+        private void thirdByte_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            handleTextInput(thirdBox, fourthBox, e);
+        }
+
+        private void fourthByte_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            handleTextInput(fourthBox, fourthBox, e); //pass fourthbyte twice because no right neighboring box.
         }
 
 
@@ -220,95 +244,23 @@ namespace IPmaskedtextbox
         //clears if > 255, switches to next textbox otherwise 
         private void firstByte_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (firstByte.Text.Length == 3)
-            {
-                try
-                {
-                    Convert.ToByte(firstByte.Text);
-
-                }
-                catch (Exception exception) when (exception is FormatException || exception is OverflowException)
-                {
-                    firstByte.Clear();
-                    firstByte.Focus();
-                    SystemSounds.Beep.Play();
-                    MessageBox.Show(errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-                if (firstByte.CaretIndex != 2)
-                {
-                    secondByte.SelectAll();
-                    secondByte.Focus();
-                }
-            }
+            handleTextChange(firstBox, secondBox);
         }
 
         private void secondByte_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (secondByte.Text.Length == 3)
-            {
-                try
-                {
-                    Convert.ToByte(secondByte.Text);
-                }
-                catch (Exception exception) when (exception is FormatException || exception is OverflowException)
-                {
-                    secondByte.Clear();
-                    secondByte.Focus();
-                    SystemSounds.Beep.Play();
-                    MessageBox.Show(errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-                if (secondByte.CaretIndex != 2)
-                {
-                    thirdByte.SelectAll();
-                    thirdByte.Focus();
-                }
-            }
+            handleTextChange(secondBox, thirdBox);
         }
 
         private void thirdByte_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (thirdByte.Text.Length == 3)
-            {
-                try
-                {
-                    Convert.ToByte(thirdByte.Text);
-                }
-                catch (Exception exception) when (exception is FormatException || exception is OverflowException)
-                {
-                    thirdByte.Clear();
-                    thirdByte.Focus();
-                    SystemSounds.Beep.Play();
-                    MessageBox.Show(errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-                if (thirdByte.CaretIndex != 2)
-                {
-                    fourthByte.SelectAll();
-                    fourthByte.Focus();
-                }
-            }
+            handleTextChange(thirdBox, fourthBox);
         }
 
         private void fourthByte_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (fourthByte.Text.Length == 3)
-            {
-                try
-                {
-                    Convert.ToByte(fourthByte.Text);
-                }
-                catch (Exception exception) when (exception is FormatException || exception is OverflowException)
-                {
-                    fourthByte.Clear();
-                    fourthByte.Focus();
-                    SystemSounds.Beep.Play();
-                    MessageBox.Show(errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-
-                    return;
-                }
-            }
+            handleTextChange(fourthBox, fourthBox);
         }
+        #endregion
     }
 }

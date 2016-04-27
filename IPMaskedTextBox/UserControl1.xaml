@@ -23,7 +23,7 @@
             <RowDefinition Height="*" Name="row"/>
         </Grid.RowDefinitions>
 
-        <TextBox x:Name="firstByte"
+        <TextBox x:Name="firstBox"
                  Grid.Column="0"
                  BorderThickness="0" 
                  Background="{x:Null}"  
@@ -41,7 +41,7 @@
                    TextAlignment="Center"
                            />
 
-        <TextBox x:Name="secondByte" 
+        <TextBox x:Name="secondBox" 
                  Grid.Column="2"
                  BorderThickness="0" 
                  Background="{x:Null}"  
@@ -58,7 +58,7 @@
                    VerticalAlignment="Center"  
                    TextAlignment="Center"/>
 
-        <TextBox x:Name="thirdByte"  
+        <TextBox x:Name="thirdBox"  
                  Grid.Column="4"
                  BorderThickness="0" 
                  Background="{x:Null}" 
@@ -75,7 +75,7 @@
                    VerticalAlignment="Center"  
                    TextAlignment="Center"/>
 
-        <TextBox x:Name="fourthByte"  
+        <TextBox x:Name="fourthBox"  
                  Grid.Column="6"
                  BorderThickness="0"
                  Background="{x:Null}" 
